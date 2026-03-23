@@ -1,65 +1,95 @@
-# React Design Screen Audit → Expo Native Plan
+# Expo Translation Workflow (Reference-first, App-first)
 
-## 1) Screens identified from source React files
+## Phase 1 — Bootable Expo foundation (completed)
 
-- `react-app(1).js`: **Home dashboard** (greeting header, health summary card, mini metric cards, personalized product list, bottom nav + FAB).
-- `react-app(2).js`: **Scan history / trends** (time filter, chart card, scan history timeline list, bottom nav).
-- `react-app(3).js`: **Shop catalog** (search + filter controls, category pills, product grid cards, bottom nav).
-- `react-app(4).js`: **Profile & settings** (profile hero, grouped settings rows, toggles, bottom nav).
-- `react-app(5).js`: **Camera capture** (full-screen camera viewport, scan frame, shutter controls).
-- `react-app(6).js`: **AI routine** (daily progress summary card, checklist-style step cards, bottom nav).
-- `react-app(7).js`: **Product detail** (immersive hero image, floating top controls, product info and metrics, CTA actions).
-- `react-app.js`: **Live scan result state** (dark immersive scan UI, top telemetry, scan frame, bottom card with action CTA).
+The repo now starts from a **real Expo runtime shell**, not from web-exported screen code.
 
-## 2) Shared design language
+- Expo entrypoint and registration (`index.js`).
+- Expo app config (`app.json`).
+- Package scripts and runtime dependencies (`package.json`).
+- Root app shell (`App.js`) that mounts a dedicated navigation shell.
+- Navigation shell (`src/navigation/AppShell.js`) that keeps app chrome (bottom nav + FAB) stable.
 
-- **Base palette:** cool light gray app background (`#F2F4F7`), white cards, dark charcoal sections (`#2B2F35`), orange accent (`#F46331`), muted body text (`#8E98A4`).
-- **Rhythm:** 24px main screen padding, generous 16–32px section gaps, 12–16px internal card spacing.
-- **Radius usage:** pills for filters/tabs, 12–16 for smaller elements, 24–32 for key cards and hero containers.
-- **Card pattern:** rounded surfaces with subtle drop shadow on light theme; dark summary card variants with inverse text.
-- **Buttons:** circular icon buttons in headers, rounded rectangle CTAs, small circular add buttons on product cards.
-- **Bottom nav:** persistent rounded floating container with icon + label items and one highlighted active tab.
-- **FAB:** plus button floating above bottom nav at lower-right for high-priority quick actions (camera / scan trigger).
-- **Typography intent:** bold headings, compact captions, clean sans-serif hierarchy.
+## Phase 2 — Design-source isolation (completed)
 
-## 3) Repeated UI patterns and reusable components
+The generated React files are treated as **reference-only source material** and moved to `/reference`:
 
-Recommended shared native components:
+- `reference/react-app.js`
+- `reference/react-app(1).js` … `reference/react-app(7).js`
 
-- `Screen`: scroll-safe page wrapper with standard paddings and optional dark variant.
-- `Card`: light and dark card surfaces with consistent radius/elevation.
-- `BottomNav`: reusable floating nav for core tabs.
-- `FloatingActionButton`: fixed lower-right plus CTA.
-- Screen-local subcomponents to reuse where practical:
-  - Search row (icon + input + filter button)
-  - Category pill row
-  - Product tile/card
-  - Settings row
-  - Routine step row
-  - Date/timeline chip
+This keeps a clean separation:
 
-## 4) Web-specific pieces needing React Native adaptation
+- Track A = design references
+- Track B = production native app
 
-- `BrowserRouter`, `Routes`, `Route`, `useNavigate`, `useLocation` → replaced with native app state navigation shell.
-- `<div>`, `<span>`, `<button>`, `<img>`, `<nav>` DOM tree → replaced with `View`, `Text`, `Pressable`, `Image`, `ScrollView`.
-- CSS-only properties not directly portable (`backdropFilter`, CSS vars, `boxShadow` strings, `dangerouslySetInnerHTML`) → translated to RN-compatible styles and structure.
-- Style injection via `document.createElement('style')` and keyframes → replaced by static styles / state-driven visuals.
-- Web hover/mouse handlers (`onMouseDown`, `onMouseUp`, hover overlays) → replaced with press interactions.
-- `100vh`, browser scrollbar APIs, and web font imports → converted to native flex layout + typography fallback.
+## Phase 3 — Shared design language extraction (completed)
 
-## 5) Native design system extracted for Expo build
+A lightweight reusable system is centralized in:
 
-- **Colors:** app background, card surfaces, dark surfaces, orange accent, lime scan accent, muted and inverse text tokens.
-- **Spacing scale:** 4 / 8 / 12 / 16 / 24 / 32.
-- **Radius scale:** 12 / 16 / 24 / 32 / pill.
-- **Elevation tokens:** soft card and floating nav/FAB shadows.
-- **Layout tokens:** standard page padding, top offset, bottom inset for floating nav.
-- **Button variants:** primary orange, dark secondary, and ghost.
+- `src/designSystem.js`
+- `src/theme/tokens.js`
 
-## 6) Screen architecture in Expo-native structure
+Extracted primitives include:
 
-- Main tabs: Home, History, Shop, Routine, Profile.
-- Overlay flows: Camera, Scan Result, Product Detail.
-- Bottom nav preserved as reusable floating component.
-- FAB preserved as reusable quick action trigger (opens camera flow).
+- colors (light surface + dark surface + orange/lime accents)
+- spacing scale
+- corner-radius scale
+- elevation/shadow tokens
+- typography levels
+- layout insets and nav config
+- button variants
+
+## Phase 4 — Native screen translation (completed, screen-by-screen)
+
+Reference screens were mapped and rebuilt as native screens:
+
+1. Home (`src/screens/HomeScreen.js`)
+2. History (`src/screens/HistoryScreen.js`)
+3. Shop (`src/screens/ShopScreen.js`)
+4. Routine (`src/screens/RoutineScreen.js`)
+5. Profile (`src/screens/ProfileScreen.js`)
+6. Camera (`src/screens/CameraScreen.js`)
+7. Scan Result (`src/screens/ScanResultScreen.js`)
+8. Product Detail (`src/screens/ProductDetailScreen.js`)
+
+## Phase 5 — Shared native components (completed)
+
+Reusable app primitives:
+
+- `Screen`
+- `Card`
+- `BottomNav`
+- `FloatingActionButton`
+
+Bottom nav structure and FAB placement were preserved as reusable runtime patterns rather than copied per-screen.
+
+## Web-specific adaptations made
+
+The following web-only patterns from references were translated to native equivalents:
+
+- `BrowserRouter` / `Routes` / `Route` → app shell + native state flow
+- DOM elements (`div`, `span`, `button`, `img`, `nav`) → `View`, `Text`, `Pressable`, `Image`, `ScrollView`
+- injected CSS and keyframes → RN styles and state-driven render updates
+- mouse/hover handlers → press handlers
+- unsupported CSS effects (`backdropFilter`, CSS vars, web shadow strings) → RN-compatible style tokens
+
+## Operational rule now enforced
+
+After each major change, the project should remain bootable with:
+
+```bash
+npx expo start
+```
+
+## Bottom nav implementation note
+
+To align with your provided reference repo (`iamitkhatkar/rn-expandable-tab-liquid-glass`), the runtime bottom nav now uses:
+
+- frosted/glass container treatment
+- attached circular plus action
+- expandable quick-action panel
+- plus icon rotation during expand/collapse
+
+This keeps the Trhiclo color/type language while matching the expandable liquid-glass interaction model.
+
 

@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Trhiclo V02",
+    "slug": "trhiclo-v02",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"]
+  }
+}
