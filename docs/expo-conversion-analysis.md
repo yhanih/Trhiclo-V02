@@ -81,3 +81,14 @@ After each major change, the project should remain bootable with:
 npx expo start
 ```
 
+## Bottom nav implementation note
+
+To align with your provided reference repo (`iamitkhatkar/rn-expandable-tab-liquid-glass`), the runtime bottom nav now uses:
+
+- frosted/glass container treatment
+- attached circular plus action
+- expandable quick-action panel
+- plus icon rotation during expand/collapse
+
+This keeps the Trhiclo color/type language while matching the expandable liquid-glass interaction model.
+

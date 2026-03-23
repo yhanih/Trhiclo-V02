@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { BottomNav } from '../components/BottomNav';
-import { FloatingActionButton } from '../components/FloatingActionButton';
 import { navConfig } from '../theme/tokens';
 import { CameraScreen } from '../screens/CameraScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
@@ -47,8 +46,7 @@ export const AppShell = () => {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.root}>{current}</View>
-      {showChrome && <BottomNav items={navConfig.items} activeKey={tab} onSelect={setTab} />}
-      {showChrome && <FloatingActionButton onPress={() => setOverlay('camera')} />}
+      {showChrome && <BottomNav items={navConfig.items} activeKey={tab} onSelect={setTab} onFabPress={() => setOverlay('camera')} />}
     </SafeAreaView>
   );
 };
